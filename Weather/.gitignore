@@ -1,0 +1,8 @@
+node_modules
+dist
+.DS_Store
+
+# API 키 등 민감 정보가 담긴 환경변수 파일은 Git에 올리지 않는다.
+.env
+.env.local
+.env.*.local
