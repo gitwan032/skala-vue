@@ -64,7 +64,7 @@ Deployment 순서로 계속 진화한 최종 상태입니다. (`src/App.vue`의 
 |---|---|
 | Router | Lazy Loading(`() => import(...)`), Catch-all Route, `router.push`로 상세 이동, URL 쿼리(`?q=`) 동기화 |
 | Store | `stores/configStore.js`(unit/unitSymbol/toggleUnit) + `UnitToggler.vue`를 Navigation Bar 옆에 배치 |
-| Axios | `src/api/weatherApi.js` — OpenWeatherMap(실시간 날씨 + 5일 예보) + Open-Meteo Geocoding(기타 외부 API)을 axios/async-await로 연동 |
+| Axios | `src/api/weatherApi.js` — Open-Meteo Forecast(실시간 날씨 + 시간별 예보) + Geocoding을 axios/async-await로 연동 |
 | UI Library | Element Plus(el-card/el-input/el-tag/el-button/el-alert/el-skeleton) 적용 |
 | Refinement | 위 라이브러리 적용 + 로딩/빈 상태 처리로 정비, 이 README로 문서화 |
 | Deployment | 아래 "배포" 절 참고 |
@@ -73,12 +73,11 @@ Deployment 순서로 계속 진화한 최종 상태입니다. (`src/App.vue`의 
 
 ```bash
 npm install
-cp .env.example .env.local   # OpenWeatherMap API 키 설정 (Git에 올라가지 않음)
 npm run dev
 ```
 
-`.env.local` 파일에 `VITE_WEATHER_API_KEY` 값을 https://openweathermap.org 에서 발급받은 본인 키로 채워야
-④ 블록의 실시간 날씨 조회가 정상 동작합니다. ①②③ 블록은 키 없이도 동작합니다.
+Open-Meteo의 키 없는 공개 API를 사용하므로 별도 환경변수 없이 ④ 블록의 실시간 날씨와 예보가 동작합니다.
+공개 API가 일시적으로 429 또는 네트워크 오류를 반환하면 화면이 비지 않도록 25~35℃ 임시 데이터로 대체됩니다.
 
 ### 배포 (Step 1~4)
 
@@ -87,7 +86,7 @@ npm run dev
 npm run format
 npm run lint
 
-# Step 2. API 키 분리 확인 (소스에 하드코딩된 키가 없어야 한다)
+# Step 2. 비밀키 미포함 확인
 git grep -nE "[0-9a-f]{32}" -- src/
 
 # Step 3. 빌드 — GitHub Pages 로 배포한다면 vite.config.js 에 아래 한 줄을 먼저 추가한다

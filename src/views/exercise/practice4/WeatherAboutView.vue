@@ -14,7 +14,7 @@ import { RouterLink } from 'vue-router'
       <li>클라이언트 사이드 라우팅을 통한 새로고침 없는 화면 전환 + 동적 상세 경로</li>
       <li>URL 쿼리 스트링 매핑을 활용한 실시간 검색 상태 동기화</li>
       <li>Pinia configStore를 통한 섭씨/화씨 단위 전역 상태 관리</li>
-      <li>axios + OpenWeatherMap/Open-Meteo를 통한 실시간 날씨·예보 데이터 연동</li>
+      <li>axios + Open-Meteo를 통한 실시간 날씨·예보 데이터 연동</li>
     </ul>
     <RouterLink to="/practice4" class="back-btn">대시보드 홀로 이동</RouterLink>
   </div>

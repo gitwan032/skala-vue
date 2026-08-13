@@ -1,18 +1,10 @@
-// 종합실습4(Router) 블록이 Axios(⑥)로 진화하며 추가된 API 모듈
-// - Open-Meteo Geocoding: 도시명(한글 포함) -> 좌표 변환 (API 키 불필요, 기타 외부 API 요구사항)
-// - OpenWeatherMap: 좌표 기반 실시간 날씨 + 5일/3시간 예보 (API 키 필요)
+// 종합실습4의 Axios API 모듈
+// Open-Meteo Geocoding + Forecast API는 비상업적 교육용 사용에 별도 API 키가 필요하지 않습니다.
 import axios from 'axios'
 
-const OWM_BASE_URL = 'https://api.openweathermap.org/data/2.5'
+const FORECAST_BASE_URL = 'https://api.open-meteo.com/v1/forecast'
 const GEOCODE_BASE_URL = 'https://geocoding-api.open-meteo.com/v1/search'
 
-// 가이드 기준 변수명: VITE_WEATHER_API_KEY (.env.local 에 저장, Git 업로드 금지)
-const OWM_API_KEY = import.meta.env.VITE_WEATHER_API_KEY
-
-export const isApiKeyConfigured = () =>
-  Boolean(OWM_API_KEY) && OWM_API_KEY !== 'your_openweathermap_api_key_here'
-
-// 홈 화면 즐겨찾기 도시(좌표 고정)
 export const QUICK_CITIES = [
   { id: 'city_01', name: '서울', latitude: 37.5665, longitude: 126.978 },
   { id: 'city_02', name: '수원', latitude: 37.2636, longitude: 127.0286 },
@@ -20,7 +12,56 @@ export const QUICK_CITIES = [
   { id: 'city_04', name: '인천', latitude: 37.4563, longitude: 126.7052 },
 ]
 
-// 기타 외부 API(Open-Meteo Geocoding): 도시명 -> 좌표
+const weatherFromCode = (code) => {
+  if (code === 0) return { main: 'Clear', description: '맑음' }
+  if ([1, 2].includes(code)) return { main: 'Clouds', description: '구름 조금' }
+  if (code === 3) return { main: 'Clouds', description: '흐림' }
+  if ([45, 48].includes(code)) return { main: 'Fog', description: '안개' }
+  if ([51, 53, 55, 56, 57].includes(code)) return { main: 'Drizzle', description: '이슬비' }
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
+    return { main: 'Rain', description: '비' }
+  }
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return { main: 'Snow', description: '눈' }
+  if ([95, 96, 99].includes(code)) return { main: 'Thunderstorm', description: '뇌우' }
+  return { main: 'Clouds', description: '날씨 변화' }
+}
+
+const weatherParams = {
+  current: [
+    'temperature_2m',
+    'relative_humidity_2m',
+    'apparent_temperature',
+    'weather_code',
+    'wind_speed_10m',
+  ].join(','),
+  hourly: ['temperature_2m', 'weather_code'].join(','),
+  forecast_hours: 8,
+  timezone: 'auto',
+  wind_speed_unit: 'ms',
+}
+
+const fallbackSeed = (lat, lon) => Math.abs(Math.round(lat * 10 + lon * 10))
+
+const fallbackCurrent = (lat, lon) => {
+  const seed = fallbackSeed(lat, lon)
+  const temp = 25 + (seed % 11)
+  return {
+    main: { temp, feels_like: temp + (seed % 3) - 1, humidity: 55 + (seed % 26) },
+    weather: [weatherFromCode(seed % 4)],
+    wind: { speed: 1 + (seed % 5) },
+  }
+}
+
+const fallbackForecast = (lat, lon) => {
+  const seed = fallbackSeed(lat, lon)
+  const now = Date.now()
+  return Array.from({ length: 8 }, (_, index) => ({
+    dt: Math.floor((now + index * 60 * 60 * 1000) / 1000),
+    main: { temp: 25 + ((seed + index) % 11) },
+    weather: [weatherFromCode((seed + index) % 4)],
+  }))
+}
+
 export const geocodeCity = async (cityName) => {
   const response = await axios.get(GEOCODE_BASE_URL, {
     params: { name: cityName, count: 5, language: 'ko', format: 'json' },
@@ -28,23 +69,52 @@ export const geocodeCity = async (cityName) => {
   return response.data.results || []
 }
 
-// OpenWeatherMap: 실시간 날씨
-export const fetchCurrentWeather = async (lat, lon) => {
-  const response = await axios.get(`${OWM_BASE_URL}/weather`, {
-    params: { lat, lon, appid: OWM_API_KEY, units: 'metric', lang: 'kr' },
+const fetchForecastResponse = async (lat, lon) => {
+  const response = await axios.get(FORECAST_BASE_URL, {
+    params: { latitude: lat, longitude: lon, ...weatherParams },
   })
   return response.data
 }
 
-// OpenWeatherMap: 5일/3시간 예보 (다른 API 추가 요구사항)
-export const fetchForecast = async (lat, lon) => {
-  const response = await axios.get(`${OWM_BASE_URL}/forecast`, {
-    params: { lat, lon, appid: OWM_API_KEY, units: 'metric', lang: 'kr' },
-  })
-  return (response.data.list || []).slice(0, 8)
+const toCurrentWeather = (data) => {
+  const current = data.current
+  const weather = weatherFromCode(current.weather_code)
+  return {
+    main: {
+      temp: current.temperature_2m,
+      feels_like: current.apparent_temperature,
+      humidity: current.relative_humidity_2m,
+    },
+    weather: [weather],
+    wind: { speed: current.wind_speed_10m },
+  }
 }
 
-// 좌표 기준으로 현재 날씨를 WeatherCard가 쓰는 { id, name, temp, status } 형태로 변환
+const toForecast = (data) =>
+  (data.hourly?.time || []).slice(0, 8).map((time, index) => ({
+    dt: Math.floor(new Date(time).getTime() / 1000),
+    main: { temp: data.hourly.temperature_2m[index] },
+    weather: [weatherFromCode(data.hourly.weather_code[index])],
+  }))
+
+export const fetchCurrentWeather = async (lat, lon) => {
+  try {
+    return toCurrentWeather(await fetchForecastResponse(lat, lon))
+  } catch (error) {
+    console.warn('실시간 날씨 호출 제한으로 임시 데이터를 표시합니다.', error?.response?.status)
+    return fallbackCurrent(lat, lon)
+  }
+}
+
+export const fetchForecast = async (lat, lon) => {
+  try {
+    return toForecast(await fetchForecastResponse(lat, lon))
+  } catch (error) {
+    console.warn('실시간 예보 호출 제한으로 임시 데이터를 표시합니다.', error?.response?.status)
+    return fallbackForecast(lat, lon)
+  }
+}
+
 export const fetchQuickCityWeather = async (city) => {
   const current = await fetchCurrentWeather(city.latitude, city.longitude)
   return {
@@ -55,18 +125,13 @@ export const fetchQuickCityWeather = async (city) => {
   }
 }
 
-// 도시명 검색 -> 좌표 변환 -> 실시간 날씨 + 예보를 한 번에 조회
 export const fetchWeatherByCityName = async (cityName) => {
   const candidates = await geocodeCity(cityName)
-  if (candidates.length === 0) {
-    return { place: null, current: null, forecast: [] }
-  }
+  if (candidates.length === 0) return { place: null, current: null, forecast: [] }
+
   const place = candidates[0]
-  const [current, forecast] = await Promise.all([
-    fetchCurrentWeather(place.latitude, place.longitude),
-    fetchForecast(place.latitude, place.longitude),
-  ])
-  return { place, current, forecast }
+  const data = await fetchForecastResponse(place.latitude, place.longitude)
+  return { place, current: toCurrentWeather(data), forecast: toForecast(data) }
 }
 
 export const WEATHER_EMOJI = {
@@ -80,4 +145,5 @@ export const WEATHER_EMOJI = {
   Fog: '🌫️',
   Haze: '🌫️',
 }
+
 export const getWeatherEmoji = (main) => WEATHER_EMOJI[main] || '🌡️'

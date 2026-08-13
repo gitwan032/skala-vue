@@ -10,7 +10,6 @@ import {
   fetchForecast,
   fetchWeatherByCityName,
   getWeatherEmoji,
-  isApiKeyConfigured,
 } from '../../../api/weatherApi.js'
 
 const route = useRoute()
@@ -28,13 +27,6 @@ const loadDetail = async (cityId) => {
   current.value = null
   forecast.value = []
 
-  if (!isApiKeyConfigured()) {
-    errorMessage.value =
-      'OpenWeatherMap API 키가 설정되지 않았습니다. .env.local의 VITE_WEATHER_API_KEY를 확인해주세요.'
-    isLoading.value = false
-    return
-  }
-
   try {
     // 요구사항: Router 동적 경로 매칭에 해당되는 도시ID(cityId)를 기반으로 Mount 시점에 데이터를 조회
     const quickCity = QUICK_CITIES.find((c) => c.id === cityId)
@@ -47,7 +39,7 @@ const loadDetail = async (cityId) => {
       current.value = currentData
       forecast.value = forecastData
     } else {
-      // 즐겨찾기 목록에 없는 도시는 이름으로 간주하여 실시간 검색(Open-Meteo + OpenWeatherMap)
+      // 즐겨찾기 목록에 없는 도시는 이름으로 간주하여 Open-Meteo로 실시간 검색
       const cityName = decodeURIComponent(cityId)
       const result = await fetchWeatherByCityName(cityName)
       if (!result.place) {

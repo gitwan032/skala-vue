@@ -11,13 +11,12 @@ import {
   QUICK_CITIES,
   fetchQuickCityWeather,
   fetchWeatherByCityName,
-  isApiKeyConfigured,
 } from '../../../api/weatherApi.js'
 
 const route = useRoute()
 const router = useRouter()
 
-// 요구사항(Axios): 하드코딩 목데이터 대신 OpenWeatherMap 실시간 데이터로 채운다
+// 요구사항(Axios): 하드코딩 목데이터 대신 Open-Meteo 실시간 데이터로 채운다
 const weatherList = ref([])
 const isLoadingQuickCities = ref(true)
 const searchError = ref('')
@@ -61,10 +60,6 @@ watch(searchQuery, (newVal) => {
 
 const loadQuickCities = async () => {
   isLoadingQuickCities.value = true
-  if (!isApiKeyConfigured()) {
-    isLoadingQuickCities.value = false
-    return
-  }
   try {
     weatherList.value = await Promise.all(QUICK_CITIES.map(fetchQuickCityWeather))
   } catch (error) {
@@ -88,7 +83,7 @@ const goDetail = (city) => {
   router.push('/practice4/weather/' + encodeURIComponent(city.id))
 }
 
-// 요구사항(Axios): 즐겨찾기에 없는 도시도 Open-Meteo+OpenWeatherMap으로 실시간 검색
+// 요구사항(Axios): 즐겨찾기에 없는 도시도 Open-Meteo로 실시간 검색
 const handleSubmitSearch = async () => {
   const keyword = searchQuery.value.trim()
   if (!keyword) return
@@ -140,14 +135,6 @@ const handleSubmitSearch = async () => {
     </BaseDashboardCard>
 
     <BaseDashboardCard title="지역별 날씨 현황" icon="📋">
-      <el-alert
-        v-if="!isLoadingQuickCities && !isApiKeyConfigured()"
-        title="OpenWeatherMap API 키가 설정되지 않았습니다. .env.local에 VITE_WEATHER_API_KEY를 설정해 주세요."
-        type="warning"
-        :closable="false"
-        show-icon
-        style="margin-bottom: 12px"
-      />
       <el-skeleton v-if="isLoadingQuickCities" :rows="4" animated />
       <p v-else-if="searchQuery && filteredWeatherList.length === 0" class="empty-msg">
         검색 결과와 일치하는 도시가 없습니다.
