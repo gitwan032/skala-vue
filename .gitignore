@@ -37,3 +37,7 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# 가이드 기준: API 키 등 민감 정보는 .env.local 에만 저장한다.
+# .env.local 은 위쪽 "*.local" 규칙으로 이미 제외되므로 별도 추가가 필요 없다.
+# (.env / .env.staging / .env.production 은 민감 정보가 없다면 커밋해도 된다)

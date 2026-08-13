@@ -11,13 +11,9 @@ const themeClass = ref('bg-dark')
 
     <h3>클래스 바인딩 (객체 형식)</h3>
 
-    <p :class="{ 'text-danger': isWarning }">
-      현재 경고 상태: {{ isWarning }}
-    </p>
+    <p :class="{ 'text-danger': isWarning }">현재 경고 상태: {{ isWarning }}</p>
 
-    <button @click="isWarning = !isWarning">
-      경고 상태 토글
-    </button>
+    <button @click="isWarning = !isWarning">경고 상태 토글</button>
 
     <br />
 
@@ -36,8 +32,8 @@ const themeClass = ref('bg-dark')
 }
 
 .bg-dark {
-  background-color: #333;
-  color: white;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
   padding: 15px;
 }
 

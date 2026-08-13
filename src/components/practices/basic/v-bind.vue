@@ -18,8 +18,6 @@ const isDisabled = ref(true)
 
     <br />
 
-    <button v-bind:disabled="isDisabled">
-      클릭할 수 없는 버튼
-    </button>
+    <button v-bind:disabled="isDisabled">클릭할 수 없는 버튼</button>
   </div>
 </template>

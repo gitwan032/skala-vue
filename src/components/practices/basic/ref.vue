@@ -14,8 +14,6 @@ const increment = () => {
 
     <p>현재 값: {{ count }}</p>
 
-    <button @click="increment">
-      증가
-    </button>
+    <button @click="increment">증가</button>
   </div>
 </template>

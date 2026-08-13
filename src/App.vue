@@ -1,61 +1,25 @@
 <script setup>
-import SampleOne from './components/practices/basic/SampleOne.vue'
-import SampleTwo from './components/practices/basic/SampleTwo.vue'
-import ClassBinding from './components/practices/basic/class-binding.vue'
-import StyleBinding from './components/practices/basic/style-binding.vue'
-import Shorthand from './components/practices/basic/v-bind-shorthand.vue'
-import VHtml from './components/practices/basic/v-html.vue'
-import VHtmlXss from './components/practices/basic/v-html-xss.vue'
-import VText from './components/practices/basic/v-text.vue'
-import VBind from './components/practices/basic/v-bind.vue'
-import VIf from './components/practices/basic/v-if.vue'
-import VShow from './components/practices/basic/v-show.vue'
-import VPre from './components/practices/basic/v-pre.vue'
-import VFor from './components/practices/basic/v-for.vue'
-import VCloak from './components/practices/basic/v-cloak.vue'
-import VOnce from './components/practices/basic/v-once.vue'
-import VMemo from './components/practices/basic/v-memo.vue'
-import VOn from './components/practices/basic/v-on.vue'
-import EventObject from './components/practices/basic/event-object.vue'
-import EventModifiers from './components/practices/basic/event-modifiers.vue'
-import VModel from './components/practices/basic/v-model.vue'
-import VModelModifiers from './components/practices/basic/v-model-modifiers.vue'
-import VueStyle from './components/practices/basic/vue-style.vue'
-import RefExample from './components/practices/basic/ref.vue'
-import ReactiveExample from './components/practices/basic/reactive.vue'
+import { RouterLink, RouterView } from 'vue-router'
+
+import PracticeApp from './PracticeApp.vue'
+import ExerciseApp from './ExerciseApp.vue'
+
+// 종합실습(Weather 1~9)을 보려면 'exercise'로 둡니다. 다른 코드챌린지 작업 중이면 'practice'/'router'로 바꿔서 확인하세요.
+const MODE = 'exercise' // 'practice' | 'exercise' | 'router'
 </script>
 
 <template>
-  <div style="padding: 20px">
-    <SampleOne />
-    <SampleTwo />
-    <VHtml />
-    <VHtmlXss />
-    <VText />
-    <VBind />
-    <ClassBinding />
-    <StyleBinding />
-    <Shorthand />
-    <VIf />
-    <VShow />
-    <VFor />
-    <VPre />
-    <VCloak />
-    <VOnce />
-    <VMemo />
-    <VOn />
-    <EventObject />
-    <EventModifiers />
-    <VModel />
-    <VModelModifiers />
-    <VueStyle />
-    <RefExample />
-    <ReactiveExample />
+  <PracticeApp v-if="MODE === 'practice'" />
+
+  <ExerciseApp v-else-if="MODE === 'exercise'" />
+
+  <div v-else-if="MODE === 'router'">
+    <nav>
+      <RouterLink to="/">Home</RouterLink>
+      |
+      <RouterLink to="/about">About</RouterLink>
+    </nav>
+
+    <RouterView />
   </div>
 </template>
-
-
-
-<style>
-@import '@/assets/practice.css';
-</style>

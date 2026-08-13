@@ -21,8 +21,6 @@ const getWithParam = (name, e) => {
     <p>태그: {{ tagName }}</p>
 
     <button @click="getOnlyEvent">클릭 좌표 알아내기</button>
-    <button @click="getWithParam('회원A', $event)">
-      회원 정보와 태그 확인
-    </button>
+    <button @click="getWithParam('회원A', $event)">회원 정보와 태그 확인</button>
   </div>
 </template>

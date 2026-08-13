@@ -2,12 +2,12 @@
 import { reactive } from 'vue'
 
 defineOptions({
-  name: 'ReactivePractice'
+  name: 'ReactivePractice',
 })
 
 const user = reactive({
   name: '홍준식',
-  age: 20
+  age: 20,
 })
 
 const increaseAge = () => {
@@ -22,8 +22,6 @@ const increaseAge = () => {
     <p>이름: {{ user.name }}</p>
     <p>나이: {{ user.age }}</p>
 
-    <button @click="increaseAge">
-      나이 증가
-    </button>
+    <button @click="increaseAge">나이 증가</button>
   </div>
 </template>

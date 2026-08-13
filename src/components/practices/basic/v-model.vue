@@ -17,16 +17,11 @@ const selectedCar = ref('')
 
     <h3>1) v-model 축약 문법</h3>
 
-    <input
-      type="text"
-      v-model="text1"
-      placeholder="여기에 입력하세요"
-    />
+    <input type="text" v-model="text1" placeholder="여기에 입력하세요" />
 
     <p>
       입력된 값: <strong>{{ text1 }}</strong>
     </p>
-
 
     <h3>2) v-model의 내부 작동 원리</h3>
 
@@ -41,16 +36,11 @@ const selectedCar = ref('')
       입력된 값: <strong>{{ text2 }}</strong>
     </p>
 
-
     <h3>3) Textarea</h3>
 
-    <textarea
-      v-model="comment"
-      placeholder="의견을 남겨주세요"
-    ></textarea>
+    <textarea v-model="comment" placeholder="의견을 남겨주세요"></textarea>
 
     <p>데이터 상태: {{ comment }}</p>
-
 
     <h3>4) 단일 Checkbox</h3>
 
@@ -60,7 +50,6 @@ const selectedCar = ref('')
     </label>
 
     <p>데이터 상태: {{ isAgreed }}</p>
-
 
     <h3>5) 다중 Checkbox</h3>
 
@@ -81,7 +70,6 @@ const selectedCar = ref('')
 
     <p>데이터 상태: {{ favoriteFruits }}</p>
 
-
     <h3>6) Radio</h3>
 
     <label>
@@ -95,7 +83,6 @@ const selectedCar = ref('')
     </label>
 
     <p>데이터 상태: {{ gender }}</p>
-
 
     <h3>7) Select</h3>
 

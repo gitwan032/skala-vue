@@ -1,9 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const rawHtmlData = ref(
-  '<span style="color: red; font-weight: bold;">빨간색 굵은 글자</span>'
-)
+const rawHtmlData = ref('<span style="color: red; font-weight: bold;">빨간색 굵은 글자</span>')
 </script>
 
 <template>
